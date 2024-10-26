@@ -40,13 +40,14 @@ resource "aws_instance" "main" {
 
   tags = merge(local.common_tags, {
     "Name" = "${local.name_prefix}-webapp-${count.index}"
-
-    user_data_replace_on_change = true
-
-    user_data = templatefile("./templates/userdata.sh", {
-      playbook_repository = var.playbook_repository
-    })
   })
+
+  user_data_replace_on_change = true
+
+  user_data = templatefile("./templates/userdata.sh", {
+    playbook_repository = var.playbook_repository
+  })
+
 
   # Code removed at lesson 8
   # Provisioner Stuff
