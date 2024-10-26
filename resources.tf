@@ -26,8 +26,8 @@ locals {
 ##################################################################################
 
 resource "aws_instance" "main" {
-  count         = length(data.tfe_outputs.networking.nonsensitive_values.public_subnets)
-  ami           = nonsensitive(data.aws_ssm_parameter.amzn2_linux.value)
+  count = length(data.tfe_outputs.networking.nonsensitive_values.public_subnets)
+  ami = nonsensitive(data.aws_ssm_parameter.amzn2_linux.value)
   instance_type = var.instance_type
   subnet_id     = data.tfe_outputs.networking.nonsensitive_values.public_subnets[count.index]
   vpc_security_group_ids = [
@@ -40,13 +40,13 @@ resource "aws_instance" "main" {
 
   tags = merge(local.common_tags, {
     "Name" = "${local.name_prefix}-webapp-${count.index}"
-
-    user_data_replace_on_change = true
-
-    user_data = templatefile("./templates/userdata.sh", {
-      playbook_repository = var.playbook_repository
-    })
   })
+  user_data_replace_on_change = true
+
+  user_data = templatefile("./templates/userdata.sh", {
+    playbook_repository = var.playbook_repository
+  })
+
 
   # Code removed at lesson 8
   # Provisioner Stuff
@@ -76,7 +76,7 @@ resource "null_resource" "webapp" {
 
   triggers = {
     webapp_server_count = length(aws_instance.main.*.id)
-    web_server_names    = join(",", aws_instance.main.*.id)
+    web_server_names = join(",", aws_instance.main.*.id)
   }
 
   provisioner "file" {
@@ -102,7 +102,7 @@ resource "aws_lb" "main" {
   name               = "${local.name_prefix}-webapp"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.webapp_http_inbound_sg.id]
+  security_groups = [aws_security_group.webapp_http_inbound_sg.id]
   subnets            = data.tfe_outputs.networking.nonsensitive_values.public_subnets
 
   enable_deletion_protection = false
@@ -130,7 +130,7 @@ resource "aws_lb_target_group" "main" {
 }
 
 resource "aws_alb_target_group_attachment" "main" {
-  count            = length(aws_instance.main.*.id)
+  count = length(aws_instance.main.*.id)
   target_group_arn = aws_lb_target_group.main.arn
   target_id        = aws_instance.main[count.index].id
 }
