@@ -40,10 +40,17 @@ resource "aws_instance" "main" {
 
   tags = merge(local.common_tags, {
     "Name" = "${local.name_prefix}-webapp-${count.index}"
+
+    user_data_replace_on_change = true
+
+    user_data = templatefile("./templates/userdata.sh", {
+      playbook_repository = var.playbook_repository
+    })
   })
 
+  # Code removed at lesson 8
   # Provisioner Stuff
-  connection {
+  /*connection {
     type        = "ssh"
     user        = "ec2-user"
     port        = "22"
@@ -62,7 +69,7 @@ resource "aws_instance" "main" {
       "sh /home/ec2-user/userdata.sh",
     ]
     on_failure = continue
-  }
+  }*/
 }
 
 resource "null_resource" "webapp" {
