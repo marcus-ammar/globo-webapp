@@ -41,7 +41,6 @@ resource "aws_instance" "main" {
   tags = merge(local.common_tags, {
     "Name" = "${local.name_prefix}-webapp-${count.index}"
   })
-
   user_data_replace_on_change = true
 
   user_data = templatefile("./templates/userdata.sh", {
@@ -73,12 +72,12 @@ resource "aws_instance" "main" {
   }*/
 }
 
-resource "null_resource" "webapp" {
+resource "terraform_data" "webapp" {
 
-  triggers = {
-    webapp_server_count = length(aws_instance.main.*.id)
-    web_server_names    = join(",", aws_instance.main.*.id)
-  }
+  triggers_replace = [
+    length(aws_instance.main.*.id),
+    join(",", aws_instance.main.*.id)
+  ]
 
   provisioner "file" {
     content = templatefile("./templates/application.config.tpl", {
@@ -96,7 +95,6 @@ resource "null_resource" "webapp" {
     host        = aws_instance.main[0].public_ip
     private_key = module.ssh_keys.private_key_openssh
   }
-
 }
 
 resource "aws_lb" "main" {
