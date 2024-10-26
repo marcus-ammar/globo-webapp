@@ -37,6 +37,7 @@ variable "api_key" {
   description = "(Required) API key for web app to talk to SaaS platform."
 }
 
+# Be careful this should correspond to your Terraform Cloud Organization Workspace 'terraform_training_marcus'
 variable "tfe_organization" {
   type        = string
   description = "(Required) TFC Organization name"
